@@ -1,0 +1,32 @@
+#!/bin/bash
+# Create a ssh key and paste the public key on the clipboard
+NAME="$1"
+COMMENT="$2"
+
+if [ "$NAME" == "" ] 
+then
+  echo "Usage ckey keynameOrPath [comment]"
+  exit 1
+fi
+
+if [[ $NAME = '/'* ]] || [[ $NAME = '.'* ]]
+then
+  SSHFILE="$NAME"
+else 
+  SSHFILE="$HOME/.ssh/id_rsa_$NAME"
+fi
+SSHFILEPUB="$SSHFILE.pub"
+
+echo "Creating SSH key $SSHFILE"
+
+if [ "$COMMENT" != "" ] 
+then
+  ssh-keygen -t rsa -b 4096 -f $SSHFILE -C $COMMENT
+else 
+  ssh-keygen -t rsa -b 4096 -f $SSHFILE
+fi
+
+ssh-add $SSHFILE
+pbcopy < $SSHFILEPUB
+
+echo "Public key ($SSHFILEPUB) copied in clipboard"
